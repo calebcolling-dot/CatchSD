@@ -1,0 +1,17 @@
+{
+  "name": "CastSD",
+  "short_name": "CastSD",
+  "description": "South Dakota fishing companion — public waters, species intel, field ID.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a2420",
+  "theme_color": "#1a2420",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

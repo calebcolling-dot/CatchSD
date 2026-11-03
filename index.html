@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>CastSD — South Dakota fishing companion</title>
+  <meta name="theme-color" content="#1a2420" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">Cast<em>SD</em></div>
+        <div class="tagline">Prairie waters</div>
+      </div>
+      <div class="license">Field guide</div>
+    </header>
+    <section class="view active" data-view="map">
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="map-search">
+          <input id="q-map" type="search" placeholder="Search a lake, river, or county" />
+          <button class="locate" id="locate" type="button" title="Use my location">Locate</button>
+        </div>
+      </div>
+      <div class="sheet">
+        <div class="sheet-head"><h2>Public waters</h2><span class="count" id="water-count"></span></div>
+        <div class="filters">
+          <button class="filter-chip on" data-region="all" type="button">All</button>
+          <button class="filter-chip" data-region="Missouri River" type="button">Missouri</button>
+          <button class="filter-chip" data-region="East River" type="button">East River</button>
+          <button class="filter-chip" data-region="Northeast lakes" type="button">Northeast</button>
+          <button class="filter-chip" data-region="Black Hills" type="button">Black Hills</button>
+          <button class="filter-chip" data-region="James River / Mitchell" type="button">Mitchell</button>
+          <button class="filter-chip" data-region="James River" type="button">James</button>
+          <button class="filter-chip" data-region="Northwest" type="button">Northwest</button>
+        </div>
+        <div class="water-list" id="water-list"></div>
+      </div>
+    </section>
+    <section class="view" data-view="guide">
+      <div class="guide-head">
+        <p class="kicker">Species intel</p>
+        <h2>Field guide</h2>
+        <input id="q-guide" type="search" placeholder="Search a species" style="width:100%;margin-top:8px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#f7f1e4;font-family:var(--sans)" />
+      </div>
+      <div class="species-grid" id="species-grid"></div>
+    </section>
+    <section class="view" data-view="id">
+      <div class="id-panel">
+        <p class="kicker">Identification</p>
+        <h2 style="font-family:var(--serif);font-weight:500;margin:0 0 8px">What is in the net</h2>
+        <p class="prose">Snap a photo, then tap every mark you can see. The matcher ranks South Dakota sport fish the way a field guide would.</p>
+        <label class="drop" for="photo">
+          <img id="preview" alt="" style="display:none" />
+          <div id="drop-copy"><strong>Add a photo</strong><p>From camera or library. Stays on this device.</p></div>
+          <input id="photo" type="file" accept="image/*" capture="environment" />
+        </label>
+        <div class="id-actions"><label class="primary" for="photo" style="text-align:center">Choose photo</label></div>
+        <p class="kicker">Marks on the fish</p>
+        <div class="marks" id="marks"></div>
+        <div class="result" id="id-result"></div>
+      </div>
+    </section>
+    <section class="view" data-view="about">
+      <div class="about">
+        <p class="kicker">CastSD</p>
+        <h2>Quiet dawn on a prairie reservoir.</h2>
+        <p class="prose">A South Dakota fishing companion: public waters on a map, species intel written like a field notebook, and a mark-based identifier you can use with wet hands.</p>
+        <hr class="rule" />
+        <p class="prose">Waters and notes are a curated field set, not the complete GFP inventory. Confirm seasons, limits, and access in the current handbook at gfp.sd.gov.</p>
+        <p class="prose">Add CastSD to your home screen from the browser share menu for a full-screen app. No account. No ads.</p>
+      </div>
+    </section>
+    <nav class="tabbar">
+      <button class="tab on" data-view="map" type="button"><span>o</span>Waters</button>
+      <button class="tab" data-view="guide" type="button"><span>=</span>Guide</button>
+      <button class="tab" data-view="id" type="button"><span>*</span>Identify</button>
+      <button class="tab" data-view="about" type="button"><span>i</span>About</button>
+    </nav>
+  </div>
+  <aside class="detail" id="detail"></aside>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
