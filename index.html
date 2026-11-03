@@ -7,41 +7,53 @@
   <meta name="theme-color" content="#1a2420" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preload" href="./fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="./fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app">
     <header class="topbar">
       <div class="brand">
-        <div class="mark">Cast<em>SD</em></div>
-        <div class="tagline">Prairie waters</div>
+        <img class="logo" src="./icon.svg" width="40" height="40" alt="" />
+        <div>
+          <div class="mark">Cast<em>SD</em></div>
+          <div class="tagline">Prairie waters</div>
+        </div>
       </div>
       <div class="license">Field guide</div>
     </header>
     <section class="view active" data-view="map">
       <div class="map-wrap">
         <div id="map"></div>
-        <div class="map-search">
-          <input id="q-map" type="search" placeholder="Search a lake, river, or county" />
-          <button class="locate" id="locate" type="button" title="Use my location">Locate</button>
+        <p id="map-status" class="map-status" role="status" hidden>Map unavailable offline</p>
+        <div class="map-overlay">
+          <div class="map-search">
+            <input id="q-map" type="search" placeholder="Search a lake, river, or county" aria-label="Search waters" />
+            <button class="locate" id="locate" type="button" aria-label="Use my location">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+            </button>
+          </div>
+          <p id="locate-msg" class="locate-msg" role="status"></p>
         </div>
       </div>
       <div class="sheet">
         <div class="sheet-head"><h2>Public waters</h2><span class="count" id="water-count"></span></div>
-        <div class="filters">
-          <button class="filter-chip on" data-region="all" type="button">All</button>
-          <button class="filter-chip" data-region="Missouri River" type="button">Missouri</button>
-          <button class="filter-chip" data-region="East River" type="button">East River</button>
-          <button class="filter-chip" data-region="Northeast lakes" type="button">Northeast</button>
-          <button class="filter-chip" data-region="Black Hills" type="button">Black Hills</button>
-          <button class="filter-chip" data-region="James River / Mitchell" type="button">Mitchell</button>
-          <button class="filter-chip" data-region="James River" type="button">James</button>
-          <button class="filter-chip" data-region="Northwest" type="button">Northwest</button>
+        <div class="filters" role="group" aria-label="Region">
+          <button class="filter-chip on" data-region="all" type="button" aria-pressed="true">All</button>
+          <button class="filter-chip" data-region="Missouri River" type="button" aria-pressed="false">Missouri</button>
+          <button class="filter-chip" data-region="East River" type="button" aria-pressed="false">East River</button>
+          <button class="filter-chip" data-region="Northeast lakes" type="button" aria-pressed="false">Northeast</button>
+          <button class="filter-chip" data-region="Black Hills" type="button" aria-pressed="false">Black Hills</button>
+          <button class="filter-chip" data-region="James River / Mitchell" type="button" aria-pressed="false">Mitchell</button>
+          <button class="filter-chip" data-region="James River" type="button" aria-pressed="false">James</button>
+          <button class="filter-chip" data-region="Northwest" type="button" aria-pressed="false">Northwest</button>
         </div>
+        <label class="species-filter">Species
+          <select id="species-filter" aria-label="Filter waters by species"></select>
+        </label>
         <div class="water-list" id="water-list"></div>
       </div>
     </section>
@@ -49,23 +61,24 @@
       <div class="guide-head">
         <p class="kicker">Species intel</p>
         <h2>Field guide</h2>
-        <input id="q-guide" type="search" placeholder="Search a species" style="width:100%;margin-top:8px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#f7f1e4;font-family:var(--sans)" />
+        <input id="q-guide" class="search" type="search" placeholder="Search a species" aria-label="Search species" />
       </div>
       <div class="species-grid" id="species-grid"></div>
     </section>
     <section class="view" data-view="id">
       <div class="id-panel">
         <p class="kicker">Identification</p>
-        <h2 style="font-family:var(--serif);font-weight:500;margin:0 0 8px">What is in the net</h2>
-        <p class="prose">Snap a photo, then tap every mark you can see. The matcher ranks South Dakota sport fish the way a field guide would.</p>
+        <h2 class="panel-title">What is in the net</h2>
+        <p class="prose">Snap a photo, then tap every mark you can see. The matcher counts shared marks. It does not read the photo.</p>
         <label class="drop" for="photo">
-          <img id="preview" alt="" style="display:none" />
+          <img id="preview" alt="" hidden />
           <div id="drop-copy"><strong>Add a photo</strong><p>From camera or library. Stays on this device.</p></div>
-          <input id="photo" type="file" accept="image/*" capture="environment" />
+          <input id="photo" type="file" accept="image/*" capture="environment" aria-label="Add a reference photo" />
         </label>
-        <div class="id-actions"><label class="primary" for="photo" style="text-align:center">Choose photo</label></div>
+        <p id="photo-note" class="photo-note">for your reference — not analyzed yet</p>
+        <div class="id-actions"><label class="primary" for="photo">Choose photo</label></div>
         <p class="kicker">Marks on the fish</p>
-        <div class="marks" id="marks"></div>
+        <div id="marks"></div>
         <div class="result" id="id-result"></div>
       </div>
     </section>
@@ -75,19 +88,31 @@
         <h2>Quiet dawn on a prairie reservoir.</h2>
         <p class="prose">A South Dakota fishing companion: public waters on a map, species intel written like a field notebook, and a mark-based identifier you can use with wet hands.</p>
         <hr class="rule" />
-        <p class="prose">Waters and notes are a curated field set, not the complete GFP inventory. Confirm seasons, limits, and access in the current handbook at gfp.sd.gov.</p>
-        <p class="prose">Add CastSD to your home screen from the browser share menu for a full-screen app. No account. No ads.</p>
+        <p class="prose">Waters and notes are a curated field set, not the complete GFP inventory. Confirm seasons, limits, and access in the <a href="https://gfp.sd.gov/UserDocs/nav/FishingHandbook_2026.pdf">current handbook</a> at <a href="https://gfp.sd.gov/">gfp.sd.gov</a>.</p>
+        <p class="prose">Add CastSD to your home screen from the browser share menu for a full-screen app. No account. No ads. Map tiles need a connection; the guide and identifier stay on the device after the first visit.</p>
       </div>
     </section>
-    <nav class="tabbar">
-      <button class="tab on" data-view="map" type="button"><span>o</span>Waters</button>
-      <button class="tab" data-view="guide" type="button"><span>=</span>Guide</button>
-      <button class="tab" data-view="id" type="button"><span>*</span>Identify</button>
-      <button class="tab" data-view="about" type="button"><span>i</span>About</button>
+    <nav class="tabbar" aria-label="Sections">
+      <button class="tab on" data-view="map" type="button" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.2"/></svg>
+        Waters
+      </button>
+      <button class="tab" data-view="guide" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5A3.5 3.5 0 0 1 18 8v11.5H8A3 3 0 0 0 5 17V4.5z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></svg>
+        Guide
+      </button>
+      <button class="tab" data-view="id" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c3.5-4 7-4.5 11-2.5 1.6.8 2.8 1.2 5 .5-2.2.7-3.4 1.2-5 2.4-4 2-7.5 1.5-11-.4z"/><circle cx="8" cy="11.2" r=".8" fill="currentColor" stroke="none"/></svg>
+        Identify
+      </button>
+      <button class="tab" data-view="about" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 11v5"/><circle cx="12" cy="8.2" r=".8" fill="currentColor" stroke="none"/></svg>
+        About
+      </button>
     </nav>
   </div>
   <aside class="detail" id="detail"></aside>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./vendor/leaflet/leaflet.js"></script>
   <script src="./data.js"></script>
   <script src="./app.js"></script>
 </body>
