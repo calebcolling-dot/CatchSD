@@ -1,4 +1,4 @@
-const CACHE = "castsd-v2";
+const CACHE = "castsd-v3";
 
 const PRECACHE = [
   "/",

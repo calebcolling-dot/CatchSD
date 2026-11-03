@@ -102,6 +102,34 @@ function filteredWaters() {
     .map((entry) => entry.water);
 }
 
+function refreshMap() {
+  if (!map) return;
+  window.clearTimeout(refreshMap.timer);
+  refreshMap.timer = window.setTimeout(() => {
+    if (map) map.invalidateSize();
+  }, 50);
+}
+
+function watchMapSize() {
+  const wrap = document.querySelector(".map-wrap");
+  if (!wrap || typeof ResizeObserver === "undefined") {
+    window.addEventListener("resize", refreshMap);
+    return;
+  }
+  let width = 0;
+  let height = 0;
+  const observer = new ResizeObserver((entries) => {
+    const box = entries[0].contentRect;
+    const nextWidth = Math.round(box.width);
+    const nextHeight = Math.round(box.height);
+    if (nextWidth === width && nextHeight === height) return;
+    width = nextWidth;
+    height = nextHeight;
+    refreshMap();
+  });
+  observer.observe(wrap);
+}
+
 function setView(name) {
   state.view = name;
   $$(".view").forEach((view) => view.classList.toggle("active", view.dataset.view === name));
@@ -111,13 +139,14 @@ function setView(name) {
     if (on) tab.setAttribute("aria-current", "page");
     else tab.removeAttribute("aria-current");
   });
-  if (name === "map" && map) setTimeout(() => map.invalidateSize(), 80);
+  if (name === "map") refreshMap();
 }
 
 function hidePanel() {
   const panel = $("#detail");
   panel.classList.remove("open");
   panel.innerHTML = "";
+  refreshMap();
 }
 
 function renderPanel(kind, id) {
@@ -225,22 +254,25 @@ function focusWater(id) {
   setView("map");
   const water = waterById(id);
   if (!map || !water) return;
-  map.setView([water.lat, water.lng], 12);
-  const marker = markerById.get(id);
-  if (marker) {
-    window.setTimeout(() => marker.openPopup(), 80);
-    return;
-  }
-  const popup = L.popup({
-    closeButton: true,
-    autoPanPaddingTopLeft: [16, 96],
-    autoPanPaddingBottomRight: [16, 24],
-  })
-    .setLatLng([water.lat, water.lng])
-    .setContent(popupHtml(water))
-    .openOn(map);
-  const button = popup.getElement()?.querySelector(".popup-go");
-  if (button) button.onclick = () => openPanel("water", water.id);
+  window.setTimeout(() => {
+    map.invalidateSize();
+    map.setView([water.lat, water.lng], 12);
+    const marker = markerById.get(id);
+    if (marker) {
+      marker.openPopup();
+      return;
+    }
+    const popup = L.popup({
+      closeButton: true,
+      autoPanPaddingTopLeft: [16, 96],
+      autoPanPaddingBottomRight: [16, 24],
+    })
+      .setLatLng([water.lat, water.lng])
+      .setContent(popupHtml(water))
+      .openOn(map);
+    const button = popup.getElement()?.querySelector(".popup-go");
+    if (button) button.onclick = () => openPanel("water", water.id);
+  }, 60);
 }
 
 function popupHtml(water) {
@@ -591,6 +623,7 @@ function init() {
     renderWaters();
   }
   bind();
+  watchMapSize();
   restoreFromLocation();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
 }
