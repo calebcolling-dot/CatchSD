@@ -1,4 +1,4 @@
-const CACHE = "castsd-v3";
+const CACHE = "castsd-v4";
 
 const PRECACHE = [
   "/",
@@ -44,15 +44,21 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  const accept = request.headers.get("accept") || "";
-  const isDocument = request.mode === "navigate" || accept.includes("text/html");
-  if (isDocument) {
+  if (isAppCode(request, url)) {
     event.respondWith(networkFirst(request));
     return;
   }
 
   event.respondWith(staleWhileRevalidate(request));
 });
+
+function isAppCode(request, url) {
+  if (request.mode === "navigate") return true;
+  const accept = request.headers.get("accept") || "";
+  if (accept.includes("text/html")) return true;
+  const path = url.pathname;
+  return path.endsWith(".html") || path.endsWith(".js") || path.endsWith(".css");
+}
 
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);

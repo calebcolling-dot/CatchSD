@@ -142,14 +142,21 @@ function setView(name) {
   if (name === "map") refreshMap();
 }
 
+function setCardOpen(open) {
+  if (open && map) map.closePopup();
+  document.body.classList.toggle("card-open", open);
+}
+
 function hidePanel() {
   const panel = $("#detail");
   panel.classList.remove("open");
   panel.innerHTML = "";
+  setCardOpen(false);
   refreshMap();
 }
 
 function renderPanel(kind, id) {
+  setCardOpen(true);
   if (kind === "water") renderWater(id);
   else renderSpeciesDetail(id);
 }
@@ -625,7 +632,16 @@ function init() {
   bind();
   watchMapSize();
   restoreFromLocation();
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+  if ("serviceWorker" in navigator) {
+    let reloading = false;
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).catch(() => {});
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);

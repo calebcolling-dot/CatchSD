@@ -397,6 +397,15 @@ a { color: var(--sage-deep); }
 
 .detail.open { display: block; }
 
+/* Leaflet panes use translate3d, so their compositor layers can paint above this
+   sheet on desktop Chrome even when the sheet's z-index is higher. Remove the
+   map from rendering while a card is open instead of relying on z-index. */
+body.card-open #map,
+body.card-open .map-overlay,
+body.card-open .map-status {
+  display: none !important;
+}
+
 .back {
   background: none;
   border: 0;
